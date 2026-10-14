@@ -45,4 +45,8 @@ function AppPage() {
         <p className="mt-2 text-muted-foreground">{email}</p>
         <div className="mt-10 rounded-2xl border border-border bg-card/60 p-8 text-muted-foreground">
           No price alerts yet. / 尚無價格提醒。
-        
+                </div>
+      </main>
+    </div>
+  );
+}
