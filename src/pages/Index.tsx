@@ -1,19 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { Plane, BellRing, CalendarX } from "lucide-react";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Flight Price Notifier｜機票降價通知" },
-      { name: "description", content: "設定航線與目標價，機票降價就通知你。Set a route and a target price — we email you when the fare drops." },
-      { property: "og:title", content: "Flight Price Notifier｜機票降價通知" },
-      { property: "og:description", content: "Set a route and a target price — we email you when the fare drops." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Index,
-});
+import { useDocumentMeta } from "@/lib/use-document-meta";
 
 const features = [
   { icon: Plane, title: "盯緊熱門航線 (Always-on route watching)", body: "持續監控台北出發的熱門航線（東京、首爾），自動抓最低票價。" },
@@ -21,7 +8,15 @@ const features = [
   { icon: CalendarX, title: "隨時取消 (Cancel anytime)", body: "月訂閱制，不想用隨時停，沒有綁約。" },
 ];
 
-function Index() {
+const meta = {
+  title: "Flight Price Notifier｜機票降價通知",
+  description: "設定航線與目標價，機票降價就通知你。Set a route and a target price — we email you when the fare drops.",
+  ogTitle: "Flight Price Notifier｜機票降價通知",
+  ogDescription: "Set a route and a target price — we email you when the fare drops.",
+};
+
+export default function Index() {
+  useDocumentMeta(meta);
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
@@ -29,7 +24,7 @@ function Index() {
           <Plane className="h-5 w-5 text-primary" /> Flight Price Notifier
         </span>
         <Link
-          to="/auth"
+          to="/sign-in"
           className="rounded-full bg-gradient-primary px-5 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-transform hover:scale-105"
         >
           Sign in / 登入

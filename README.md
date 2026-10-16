@@ -1,24 +1,22 @@
-# Pixel Perfect Replica
+# Flight Price Notifier
 
-Implement exactly the screenshot and nothing else
+Vite + React + React Router single-page app (client-side only). Auth via Supabase.
 
-This project was built with [Lovable](https://lovable.dev).
+## Routes
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/beb4413e-28d1-4c10-8d30-e563a1afa272).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+`/` landing · `/app` dashboard (requires sign-in) · `/sign-in` · `/sign-up` (`/auth` is kept as an alias for sign-in)
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+npm install
+npm run dev      # local dev server
+npm run build    # type-check + static build to dist/
+npm run preview  # serve dist/ locally
+npm test
 ```
+
+## Deploy (Vercel)
+
+Static SPA: build command `npm run build`, output directory `dist`. `vercel.json` rewrites every path to
+`index.html` so deep links such as `/app` resolve client-side.

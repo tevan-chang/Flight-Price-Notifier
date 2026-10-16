@@ -1,25 +1,20 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, type FormEvent } from "react";
 import { Plane } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useDocumentMeta } from "@/lib/use-document-meta";
 
-export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Sign in / 登入 — Flight Price Notifier" },
-      { name: "description", content: "Sign in or create an account to track flight prices." },
-      { property: "og:title", content: "Sign in — Flight Price Notifier" },
-      { property: "og:description", content: "Sign in or create an account to track flight prices." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: AuthPage,
-});
+const meta = {
+  title: "Sign in / 登入 — Flight Price Notifier",
+  description: "Sign in or create an account to track flight prices.",
+  ogTitle: "Sign in — Flight Price Notifier",
+  ogDescription: "Sign in or create an account to track flight prices.",
+};
 
-function AuthPage() {
+export default function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | "signup" }) {
+  useDocumentMeta(meta);
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -39,7 +34,7 @@ function AuthPage() {
           });
     setBusy(false);
     if (error) return setMsg(error.message);
-    if (data.session) navigate({ to: "/app" });
+    if (data.session) navigate("/app");
     else setMsg("Check your email to confirm your account. / 請至信箱確認帳號。");
   }
 

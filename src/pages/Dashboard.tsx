@@ -1,34 +1,39 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Plane } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useDocumentMeta } from "@/lib/use-document-meta";
 
-export const Route = createFileRoute("/app")({
-  ssr: false,
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth" });
-    return { email: data.user.email ?? "" };
-  },
-  head: () => ({
-    meta: [
-      { title: "Dashboard / 控制台 — Flight Price Notifier" },
-      { name: "description", content: "Your flight price alerts dashboard." },
-      { property: "og:title", content: "Dashboard — Flight Price Notifier" },
-      { property: "og:description", content: "Your flight price alerts dashboard." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: AppPage,
-});
+const meta = {
+  title: "Dashboard / 控制台 — Flight Price Notifier",
+  description: "Your flight price alerts dashboard.",
+  ogTitle: "Dashboard — Flight Price Notifier",
+  ogDescription: "Your flight price alerts dashboard.",
+};
 
-function AppPage() {
-  const { email } = Route.useRouteContext();
+export default function AppPage() {
+  useDocumentMeta(meta);
   const navigate = useNavigate();
+  // undefined = still checking, null = signed out, string = signed-in email
+  const [email, setEmail] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (active) setEmail(data.user ? (data.user.email ?? "") : null);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    navigate("/");
   }
+  if (email === undefined) return null;
+  if (email === null) return <Navigate to="/sign-in" replace />;
+
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
