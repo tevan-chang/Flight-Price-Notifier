@@ -42,7 +42,7 @@ export default function AuthPage({ initialMode = "signin" }: { initialMode?: "si
     "w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground outline-none focus:border-primary";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 font-sans text-foreground">
+    <div className="flex min-h-screen items-center justify-center px-4 font-sans text-foreground">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card/60 p-8 shadow-glow">
         <Link to="/" className="mb-6 flex items-center gap-2 font-semibold">
           <Plane className="h-5 w-5 text-primary" /> Flight Price Notifier

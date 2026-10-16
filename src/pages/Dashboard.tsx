@@ -35,7 +35,7 @@ export default function AppPage() {
   if (email === null) return <Navigate to="/sign-in" replace />;
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground">
+    <div className="min-h-screen font-sans text-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <span className="flex items-center gap-2 font-semibold">
           <Plane className="h-5 w-5 text-primary" /> Flight Price Notifier
