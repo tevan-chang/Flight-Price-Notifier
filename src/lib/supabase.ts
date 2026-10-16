@@ -1,13 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 
-// User's own Supabase project — auth only. Publishable key is safe in the browser.
-const SUPABASE_URL = "https://kcbxmflpsyxtqmkmfxgf.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_G3YJyOpz8uQHS-YmU-PYRQ_dag9La_g";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    "Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. Set them in .env.local (or Vercel env vars).",
+  );
+}
+
+// Single Supabase client for the whole app (auth only). The publishable key is browser-safe.
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    persistSession: typeof window !== "undefined",
-    autoRefreshToken: typeof window !== "undefined",
-    storage: typeof window !== "undefined" ? window.localStorage : undefined,
+    persistSession: true,
+    autoRefreshToken: true,
+    storage: window.localStorage,
   },
 });
