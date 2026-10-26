@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Plane } from "lucide-react";
+import { PlanCard } from "@/components/PlanCard";
+import { listSubscriptions } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useDocumentMeta } from "@/lib/use-document-meta";
 
@@ -27,6 +30,13 @@ export default function AppPage() {
     };
   }, []);
 
+  const subs = useQuery({
+    queryKey: ["subscriptions", email],
+    queryFn: () => listSubscriptions(email as string),
+    enabled: typeof email === "string" && email.length > 0,
+  });
+  const byPlan = new Map((subs.data ?? []).map((s) => [s.plan_name, s]));
+
   async function signOut() {
     await supabase.auth.signOut();
     navigate("/");
@@ -48,9 +58,21 @@ export default function AppPage() {
       <main className="mx-auto max-w-4xl px-6 py-20">
         <h1 className="text-3xl font-bold">Welcome / 歡迎</h1>
         <p className="mt-2 text-muted-foreground">{email}</p>
-        <div className="mt-10 rounded-2xl border border-border bg-card/60 p-8 text-muted-foreground">
-          No price alerts yet. / 尚無價格提醒。
-                </div>
+        <h2 className="mt-10 text-xl font-semibold">選擇航線 / Pick a route</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          設定目標價，機票降到目標價以下時我們會寄 email 通知你。
+        </p>
+        {subs.isError && (
+          <p role="alert" className="mt-4 text-sm text-destructive">
+            無法載入訂閱資料。 / Could not load your subscriptions.
+          </p>
+        )}
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <PlanCard email={email} plan="tokyo" title="台北 ✈ 東京" hint={9325}
+            subscription={byPlan.get("tokyo")} />
+          <PlanCard email={email} plan="seoul" title="台北 ✈ 首爾" hint={5989}
+            subscription={byPlan.get("seoul")} />
+        </div>
       </main>
     </div>
   );
