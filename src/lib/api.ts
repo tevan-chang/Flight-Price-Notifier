@@ -3,7 +3,7 @@ export const API_URL: string = (
   (import.meta.env["VITE_API_URL"] as string | undefined) ??"https://1u6hrfhj4h.execute-api.us-east-1.amazonaws.com"
 ).replace(/\/$/, "");
 
-export type PlanName = "tokyo" | "seoul";
+export type PlanName = "tokyo" | "seoul" | "london";
 
 export interface Subscription {
   email: string;

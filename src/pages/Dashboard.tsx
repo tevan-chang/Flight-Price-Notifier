@@ -69,11 +69,13 @@ export default function AppPage() {
             無法載入訂閱資料。 / Could not load your subscriptions.
           </p>
         )}
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <PlanCard email={email} plan="tokyo" title="台北 ✈ 東京" fare={fareByRoute.get("TPE-TYO")}
             subscription={byPlan.get("tokyo")} />
           <PlanCard email={email} plan="seoul" title="台北 ✈ 首爾" fare={fareByRoute.get("TPE-SEL")}
             subscription={byPlan.get("seoul")} />
+          <PlanCard email={email} plan="london" title="台北 ✈ 倫敦" fare={fareByRoute.get("TPE-LON")}
+            subscription={byPlan.get("london")} />
         </div>
       </main>
     </div>
