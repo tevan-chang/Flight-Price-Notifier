@@ -33,3 +33,19 @@ export async function saveSubscription(input: {
   });
   if (!res.ok) throw new Error(`Failed to save subscription (${res.status})`);
 }
+
+export interface Fare {
+  route: string;
+  month: string;
+  price_twd: number;
+  price_usd: number | null;
+  airline: string | null;
+  checked_at: string;
+}
+
+export async function listFares(): Promise<Fare[]> {
+  const res = await fetch(`${API_URL}/fares`);
+  if (!res.ok) throw new Error(`Failed to load fares (${res.status})`);
+  const data = (await res.json()) as { fares: Fare[] };
+  return data.fares;
+}

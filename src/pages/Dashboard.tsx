@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Plane } from "lucide-react";
 import { PlanCard } from "@/components/PlanCard";
-import { listSubscriptions } from "@/lib/api";
+import { listFares, listSubscriptions } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useDocumentMeta } from "@/lib/use-document-meta";
 
@@ -35,6 +35,8 @@ export default function AppPage() {
     queryFn: () => listSubscriptions(email as string),
     enabled: typeof email === "string" && email.length > 0,
   });
+  const fares = useQuery({ queryKey: ["fares"], queryFn: listFares, refetchInterval: 5 * 60 * 1000 });
+  const fareByRoute = new Map((fares.data ?? []).map((f) => [f.route, f]));
   const byPlan = new Map((subs.data ?? []).map((s) => [s.plan_name, s]));
 
   async function signOut() {
@@ -68,9 +70,9 @@ export default function AppPage() {
           </p>
         )}
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          <PlanCard email={email} plan="tokyo" title="台北 ✈ 東京" hint={9325}
+          <PlanCard email={email} plan="tokyo" title="台北 ✈ 東京" fare={fareByRoute.get("TPE-TYO")}
             subscription={byPlan.get("tokyo")} />
-          <PlanCard email={email} plan="seoul" title="台北 ✈ 首爾" hint={5989}
+          <PlanCard email={email} plan="seoul" title="台北 ✈ 首爾" fare={fareByRoute.get("TPE-SEL")}
             subscription={byPlan.get("seoul")} />
         </div>
       </main>

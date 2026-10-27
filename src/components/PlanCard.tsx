@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
-import { saveSubscription, type PlanName, type Subscription } from "@/lib/api";
+import { saveSubscription, type Fare, type PlanName, type Subscription } from "@/lib/api";
 
 interface PlanCardProps {
   email: string;
   plan: PlanName;
   title: string;
-  hint: number; // rough current cheapest fare in TWD, to help pick a sane budget
+  fare?: Fare | undefined; // latest cheapest fare found by the scheduled checker
   subscription?: Subscription | undefined;
 }
 
-export function PlanCard({ email, plan, title, hint, subscription }: PlanCardProps) {
+export function PlanCard({ email, plan, title, fare, subscription }: PlanCardProps) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [price, setPrice] = useState<string>(String(subscription?.target_price ?? ""));
@@ -39,9 +39,17 @@ export function PlanCard({ email, plan, title, hint, subscription }: PlanCardPro
           </span>
         )}
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        目前最低約 NT${hint.toLocaleString()} / Current cheapest ≈ NT${hint.toLocaleString()}
-      </p>
+      {fare ? (
+        <p className="mt-1 text-sm text-muted-foreground">
+          目前最低 / Cheapest now: <b className="text-foreground">NT${fare.price_twd.toLocaleString()}</b>
+          {fare.price_usd !== null && <> (約 US${fare.price_usd.toLocaleString()})</>}
+          <span className="block text-xs">
+            {fare.month} 出發 · 更新於 {new Date(fare.checked_at).toLocaleString("zh-TW")}
+          </span>
+        </p>
+      ) : (
+        <p className="mt-1 text-sm text-muted-foreground">票價資料更新中… / Fare data pending…</p>
+      )}
 
       {subscribed && !editing && (
         <p className="mt-4 text-sm">
@@ -67,7 +75,7 @@ export function PlanCard({ email, plan, title, hint, subscription }: PlanCardPro
             inputMode="numeric"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder={String(Math.round(hint * 1.1))}
+            placeholder={fare ? String(Math.round(fare.price_twd * 1.1)) : ""}
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
           <button
