@@ -1,7 +1,16 @@
+import { supabase } from "@/lib/supabase";
+
 // Flight API (API Gateway HTTP API → Lambda → DynamoDB). Public endpoint; the browser holds no AWS credentials.
 export const API_URL: string = (
   (import.meta.env["VITE_API_URL"] as string | undefined) ??"https://1u6hrfhj4h.execute-api.us-east-1.amazonaws.com"
 ).replace(/\/$/, "");
+
+// Every user-scoped call carries the Supabase access token; the Lambdas verify it and trust only its email.
+async function authHeaders(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export type PlanName = "tokyo" | "seoul" | "london";
 
@@ -20,7 +29,9 @@ export interface Subscription {
 }
 
 export async function listSubscriptions(email: string): Promise<Subscription[]> {
-  const res = await fetch(`${API_URL}/subscriptions?email=${encodeURIComponent(email)}`);
+  const res = await fetch(`${API_URL}/subscriptions?email=${encodeURIComponent(email)}`, {
+    headers: await authHeaders(),
+  });
   if (!res.ok) throw new Error(`Failed to load subscriptions (${res.status})`);
   const data = (await res.json()) as { subscriptions: Subscription[] };
   return data.subscriptions;
@@ -35,7 +46,7 @@ export async function saveSubscription(input: {
 }): Promise<"redirected" | "updated"> {
   const res = await fetch(`${API_URL}/subscribe`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error(`Failed to save subscription (${res.status})`);
@@ -52,7 +63,7 @@ export async function saveSubscription(input: {
 export async function cancelSubscription(input: { email: string; plan_name: PlanName }): Promise<void> {
   const res = await fetch(`${API_URL}/cancel`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error(`Failed to cancel subscription (${res.status})`);
