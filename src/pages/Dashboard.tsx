@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Plane } from "lucide-react";
 import { PlanCard } from "@/components/PlanCard";
@@ -17,6 +17,8 @@ const meta = {
 export default function AppPage() {
   useDocumentMeta(meta);
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const purchase = params.get("purchase"); // set by the ECPay OrderResultURL redirect (UX only)
   // undefined = still checking, null = signed out, string = signed-in email
   const [email, setEmail] = useState<string | null | undefined>(undefined);
 
@@ -34,6 +36,8 @@ export default function AppPage() {
     queryKey: ["subscriptions", email],
     queryFn: () => listSubscriptions(email as string),
     enabled: typeof email === "string" && email.length > 0,
+    // right after paying, the server-to-server ReturnURL callback may land a moment later
+    refetchInterval: purchase === "success" ? 4000 : false,
   });
   const fares = useQuery({ queryKey: ["fares"], queryFn: listFares, refetchInterval: 5 * 60 * 1000 });
   const fareByRoute = new Map((fares.data ?? []).map((f) => [f.route, f]));
@@ -64,6 +68,16 @@ export default function AppPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           設定目標價，機票降到目標價以下時我們會寄 email 通知你。
         </p>
+        {purchase === "success" && (
+          <p role="status" className="mt-4 rounded-lg bg-primary/15 px-4 py-3 text-sm text-primary">
+            付款完成，訂閱啟用中… / Payment received — activating your subscription.
+          </p>
+        )}
+        {purchase === "failed" && (
+          <p role="alert" className="mt-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            付款未完成，請在下方重新付款。 / Payment was not completed — please try again below.
+          </p>
+        )}
         {subs.isError && (
           <p role="alert" className="mt-4 text-sm text-destructive">
             無法載入訂閱資料。 / Could not load your subscriptions.
